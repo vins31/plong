@@ -7,8 +7,8 @@ from os.path import realpath
 sys.path.append(realpath("."))
 
 import unittest
-from tests.utils import cleanup, import_model, select_object, get_bounds
-from modules.planar_faces import SupportPlanes
+from ultimaker.tests.utils import cleanup, import_model, select_object, get_bounds
+from ultimaker.modules.planar_faces import SupportPlanes
 from math import pi
 
 class PlanarFacesTests(unittest.TestCase):
@@ -27,7 +27,7 @@ class PlanarFacesTests(unittest.TestCase):
         self.assertEqual(sp[0].faces, chosen_faces)
         sp[0].select()
         self.assertEqual(set(
-            [face.index for face in obj.data.faces
+            [face.index for face in obj.data.polygons
                 if face.select]), chosen_faces)
         
         

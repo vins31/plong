@@ -23,9 +23,10 @@ support plane from the selected faces.
 The py:func:`generate_socle` function generates a socle.
 """
 
+import bmesh
 from mathutils import Euler, Vector
 from math import pi
-from modules.gui import ProgressBar
+from ultimaker.modules.gui import ProgressBar
 import bpy
 import heapq
 
@@ -49,8 +50,8 @@ class PlanarFacesSet(object):
         self._obj = obj
         self._normal = initial_face.normal
         self._comp_face = initial_face.index
-        self._proj_dist = initial_face.normal.dot(initial_face.center)
-        self.total_area = initial_face.area
+        self._proj_dist = initial_face.normal.dot(initial_face.calc_center_median())
+        self.total_area = initial_face.calc_area()
         self.faces = {initial_face.index}
 
     def test_face(self, face):
@@ -64,10 +65,10 @@ class PlanarFacesSet(object):
             return False
         elif self._normal.angle(face.normal) <= MAX_ANGLE:
             if face not in self.faces:
-                proj = self._normal.dot(face.center)
+                proj = self._normal.dot(face.calc_center_median())
                 if abs(self._proj_dist - proj) / divisor < ALIGN_TOLERANCE:
                     self.faces.add(face.index)
-                    self.total_area += face.area
+                    self.total_area += face.calc_area()
 
                     return True
 
@@ -85,7 +86,7 @@ class PlanarFacesSet(object):
         bpy.ops.object.mode_set(mode='OBJECT')
 
         for face in self.faces:
-            self._obj.data.faces[face].select = True
+            self._obj.data.polygons[face].select = True
 
         bpy.ops.object.mode_set(mode='EDIT')
 
@@ -132,7 +133,7 @@ class PlanarFacesSet(object):
 
         all_vertices = set()
         for face in self.faces:
-            all_vertices |= set(self._obj.data.faces[face].vertices)
+            all_vertices |= set(self._obj.data.polygons[face].vertices)
 
         mean_x = 0.
         mean_y = 0.
@@ -157,11 +158,11 @@ class PlanarFacesSet(object):
         """
 
         # Recalculate the initial face's normal in case it changed
-        self._normal = self._obj.data.faces[self._comp_face].normal
+        self._normal = self._obj.data.polygons[self._comp_face].normal
 
         points = set()
         for face in self.faces:
-            points.update(self._obj.data.faces[face].vertices)
+            points.update(self._obj.data.polygons[face].vertices)
 
         vertices = self._obj.data.vertices
 
@@ -188,15 +189,19 @@ class SupportPlanes(object):
     """
 
     def __init__(self, obj):
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.mode_set(mode='EDIT')
+        bm = bmesh.from_edit_mesh(obj.data)
+        
         face_sets = []
 
         # We take the MAX_FACES largest faces and the associated points.
         with ProgressBar("Planar faces", "Sorting faces...", True):
-            faces = heapq.nlargest(MAX_FACES, obj.data.faces,
-                lambda face: face.area)
+            faces = heapq.nlargest(MAX_FACES, bm.faces,
+                lambda face: face.calc_area())
             points = set()
             for face in faces:
-                points |= set(face.vertices)
+                points |= set(face.verts)
             points = list(points)
 
         # Initial face clustering
@@ -233,7 +238,7 @@ class SupportPlanes(object):
                 is_valid = True
 
                 for point_ident in points:
-                    proj = vector.dot(obj.data.vertices[point_ident].co)
+                    proj = vector.dot(obj.data.vertices[point_ident.index].co)
                     if proj > ref_proj:
                         error = abs(proj - ref_proj) / abs(ref_proj) if round(ref_proj, 8) else proj
                         if error > OUTSIDE_PROJ_TOLERANCE:
@@ -301,7 +306,7 @@ def use_selection_for_support():
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.mode_set(mode='EDIT')
     faces = []
-    for face in obj.data.faces:
+    for face in obj.data.polygons:
         if face.select:
             faces.append(face)
 

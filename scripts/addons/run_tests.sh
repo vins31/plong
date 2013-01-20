@@ -8,4 +8,4 @@ else
 	COMMAND="blender"
 fi
 
-exec $COMMAND --background --python tests/all.py
+exec $COMMAND --background --python ultimaker/tests/all.py

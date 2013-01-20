@@ -24,7 +24,7 @@ def center_of_gravity(obj):
     """
     x = y = z = 0
     orig = Vector((0, 0, 0))
-    for face in obj.data.faces:
+    for face in obj.data.polygons:
         if face.normal.length == 0.0:
             continue
         distance = distance_point_to_plane(orig, face.center, face.normal)
@@ -64,7 +64,7 @@ def volume(obj):
     bpy.ops.object.mode_set(mode='OBJECT')
     volume = 0
     orig = Vector((0, 0, 0))
-    for face in obj.data.faces:
+    for face in obj.data.polygons:
         if face.normal.length == 0.0:
             continue
         distance = distance_point_to_plane(orig, face.center, face.normal)
@@ -80,7 +80,7 @@ def point_inside_object(point, obj):
     """
     # http://blenderartists.org/forum/showthread.php?195605-Detecting-if-a-point-is-inside-a-mesh-2.5-API
     intersections_count = 0
-    axis = obj.data.faces[0].center  # arbitrary choice, but *not* a face vertice
+    axis = obj.data.polygons[0].center  # arbitrary choice, but *not* a face vertice
     while True:
         location, normal, index = ob.ray_cast(point, point + axis * 10000.0)
         if index == -1:

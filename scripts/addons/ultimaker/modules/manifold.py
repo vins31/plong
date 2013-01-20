@@ -1,8 +1,8 @@
 import bpy
 import sys
 import time
-from modules import holes
-from modules.gui import ProgressText
+from ultimaker.modules import holes
+from ultimaker.modules.gui import ProgressText
 
 
 def clean_and_select(edges):

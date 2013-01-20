@@ -6,12 +6,22 @@ successives step towards making a printable object.
 #from bpy import *
 import bpy
 # Allows importing mesh processing modules
-import sys
-from os.path import dirname, join
-sys.path.insert(0, dirname(dirname(__file__)))
-sys.path.insert(0, join(dirname(dirname(__file__)), 'modules'))
-import manifold
-import planar_faces
+
+bl_info = {
+    'name': 'Printing preprocessing',
+    'author': 'Vincent Duvert, Antoine Lubineau, Caroline Naud, '\
+        'James Packer, Florian Ribon',
+    'version': (2, 6, 9),
+    'blender': (2, 6, 4),
+    'api': 36710,
+    'location': 'Properties panel > Object Display tab',
+    'warning': '', 
+    'description': 'Preprocess a mesh before sending it to '\
+        '3d printer.',
+    'category': 'Object'}
+
+import ultimaker.modules.manifold as manifold
+import ultimaker.modules.planar_faces as planar_faces
 
 step = 0  # step in the pre-processing of the mesh (3)
 sp = []  # adequate supporting planes

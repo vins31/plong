@@ -70,7 +70,7 @@ def clean_zero_edges():
     bpy.ops.object.mode_set(mode='OBJECT')
     obj = bpy.context.active_object.data
     edges_copy = [edge.key for edge in obj.edges]  # mapping from edge to adjacent faces
-    for ThisFace in obj.faces:
+    for ThisFace in obj.polygons:
         for ThisEdge in ThisFace.edge_keys:
             if ThisEdge in edges_copy:
                 edges_copy.remove(ThisEdge)

@@ -8,9 +8,9 @@ sys.path.append(realpath("."))
 
 import bpy
 import unittest
-from tests.utils import (cleanup, import_model, select_object, get_bounds,
+from ultimaker.tests.utils import (cleanup, import_model, select_object, get_bounds,
     get_selected_points)
-from modules.manifold import correction
+from ultimaker.modules.manifold import correction
 
 class PlanarFacesTests(unittest.TestCase):
     def setUp(self):
